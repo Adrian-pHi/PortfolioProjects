@@ -1,3 +1,7 @@
+/*
+Explorando datos en SQL Queries
+*/ 
+ 
  Select *
 From PortfolioProject..CovidDeaths
 WHERE continent IS NULL
@@ -12,6 +16,8 @@ Select location, date, total_cases, new_cases, total_cases, population
 From PortfolioProject..CovidDeaths
 Order by 1,2
 
+--------------------------------------------------------------------------------------------------------------------------
+
 -- Oberservando el Total de casos vs Total de muertes
 
 Select location, date, total_cases, total_deaths, CAST((TRY_CAST(total_cases AS numeric) / TRY_CAST(total_deaths AS numeric))*100 AS decimal(18,2)) AS DeathPercentage 
@@ -19,6 +25,8 @@ From PortfolioProject..CovidDeaths
 WHERE total_cases IS NOT NULL AND TRY_CAST(total_cases AS numeric) <> 0 AND total_deaths IS NOT NULL AND continent IS NOT NULL
 --AND location like 'Costa%'
 Order by 1,2
+
+--------------------------------------------------------------------------------------------------------------------------
 
 -- Oberservando el Total de casos vs Poblacion
 
@@ -28,7 +36,9 @@ WHERE total_cases IS NOT NULL AND TRY_CAST(total_cases AS numeric) <> 0 AND cont
 --AND location like 'Costa%'
 Order by 1,2 
 
---Observando a los paises con la Mayor Tasa de Infeccion comparada a su Poblacion
+--------------------------------------------------------------------------------------------------------------------------
+
+-- Observando a los paises con la Mayor Tasa de Infeccion comparada a su Poblacion
 
 Select location, population, MAX(TRY_CAST(total_cases AS numeric)) AS HighestInfectionCount,  MAX((TRY_CAST(total_cases AS numeric)/population))*100 AS HighestInfectedPercentage
 From PortfolioProject..CovidDeaths
@@ -36,6 +46,8 @@ WHERE total_cases IS NOT NULL AND TRY_CAST(total_cases AS numeric) <> 0 AND cont
 --AND location like 'Costa%'
 Group by location, population
 Order by HighestInfectedPercentage desc
+
+--------------------------------------------------------------------------------------------------------------------------
 
 --Mostrando paises con el Mayor Recuento de Muertes por Poblacion
 
@@ -45,7 +57,9 @@ WHERE continent IS NOT NULL
 Group by location
 Order by TotalDeathCount desc
 
---Mostrando continentes con el Mayor Recuento de Muertes por Poblacion
+--------------------------------------------------------------------------------------------------------------------------
+
+-- Mostrando continentes con el Mayor Recuento de Muertes por Poblacion
 
 Select continent, MAX(TRY_CAST(REPLACE(total_deaths, '.', '') AS INT)) AS TotalDeathCount 
 From PortfolioProject..CovidDeaths
@@ -53,7 +67,9 @@ WHERE continent IS NOT NULL
 Group by continent
 Order by TotalDeathCount desc
 
---Estadisticas Globales por Fecha, muertes y casos nuevos 
+--------------------------------------------------------------------------------------------------------------------------
+
+-- Estadisticas Globales por Fecha, muertes y casos nuevos 
 
 SELECT 
   date,
@@ -72,8 +88,10 @@ WHERE
 GROUP BY date
 ORDER BY date 
 
--- Población Total vs Vacunaciones
--- Muestra el porcentaje de población que ha recibido al menos una vacuna contra Covid
+--------------------------------------------------------------------------------------------------------------------------
+
+-- PoblaciÃ³n Total vs Vacunaciones
+-- Muestra el porcentaje de poblaciÃ³n que ha recibido al menos una vacuna contra Covid
 
 Select dea.continent, dea.location, dea.date, dea.population, vac.new_vaccinations, 
 SUM(TRY_CONVERT(int,vac.new_vaccinations)) OVER (Partition by dea.Location Order by dea.location, dea.Date) as RollingPeopleVaccinated
@@ -85,7 +103,9 @@ Join PortfolioProject..CovidVaccinations vac
 where dea.continent IS NOT NULL AND vac.new_vaccinations IS NOT NULL
 order by 1,2,3
 
--- Usando CTE para realizar cálculos en Partition By en la consulta anterior.
+--------------------------------------------------------------------------------------------------------------------------
+
+-- Usando CTE para realizar cÃ¡lculos en Partition By en la consulta anterior.
 
 With PopvsVac (Continent, Location, Date, Population, New_Vaccinations, RollingPeopleVaccinated)
 as
@@ -102,7 +122,9 @@ where dea.continent IS NOT NULL AND vac.new_vaccinations IS NOT NULL
 Select *, (RollingPeopleVaccinated/TRY_CONVERT(float, Population))*100
 From PopvsVac
 
--- Utilizando tabla temporal para realizar el cálculo en Partition By en la consulta anterior
+--------------------------------------------------------------------------------------------------------------------------
+
+-- Utilizando tabla temporal para realizar el cÃ¡lculo en Partition By en la consulta anterior
 
 DROP Table if exists #PercentPopulationVaccinated
 Create Table #PercentPopulationVaccinated
@@ -125,6 +147,8 @@ Join PortfolioProject..CovidVaccinations vac
 
 Select *, (RollingPeopleVaccinated/TRY_CONVERT(float, Population))*100
 From #PercentPopulationVaccinated
+
+--------------------------------------------------------------------------------------------------------------------------
 
 -- Creando una View para almacenar datos para visualizaciones posteriores
 
