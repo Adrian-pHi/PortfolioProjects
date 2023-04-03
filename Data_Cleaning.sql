@@ -49,8 +49,6 @@ JOIN PortfolioProject.dbo.NashvilleHousing NashB
 Where NashA.PropertyAddress is null
 
 
-
-
 --------------------------------------------------------------------------------------------------------------------------
 
 -- Breaking out Property Address into Individual Columns (Address, City, State)
